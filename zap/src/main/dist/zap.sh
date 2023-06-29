@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+JAVA_CUSTOM='/usr/lib/jvm/java-16-openjdk-amd64/bin/java'
+
+JAVA_BIN=$(which java)
+
+if [ ! "$JAVA_CUSTOM" = "" ]; then
+	JAVA_BIN=$JAVA_CUSTOM
+fi
+
 # Dereference from link to the real directory
 SCRIPTNAME="$0"
 
@@ -31,7 +39,7 @@ if [ "$OS" = "Darwin" ]; then
 fi
 
 # Extract and check the Java version
-JAVA_OUTPUT=$(java -version 2>&1)
+JAVA_OUTPUT=$(${JAVA_BIN} -version 2>&1)
 
 # Catch warning: Unable to find a $JAVA_HOME at "/usr", continuing with system-provided Java
 if [ "`echo ${JAVA_OUTPUT} | grep "continuing with system-provided Java"`" ] ; then
@@ -43,7 +51,7 @@ fi
 
 DEFAULTJAVAGC=""
 
-JAVA_VERSION=$(java -version 2>&1 | awk -F\" '/version/ { print $2 }')
+JAVA_VERSION=$(${JAVA_BIN} -version 2>&1 | awk -F\" '/version/ { print $2 }')
 JAVA_MAJOR_VERSION=${JAVA_VERSION%%[.|-]*}
 JAVA_MINOR_VERSION=$(echo $JAVA_VERSION | awk -F\. '{ print $2 }')
 
@@ -121,7 +129,7 @@ fi
 # Start ZAP; it's likely that -Xdock:icon would be ignored on other platforms, but this is known to work
 if [ "$OS" = "Darwin" ]; then
   # It's likely that -Xdock:icon would be ignored on other platforms, but this is known to work
-  exec java ${JMEM} ${JAVAGC} ${JAVADEBUG} -Xdock:icon="../Resources/ZAP.icns" -jar "${BASEDIR}/@zapJar@" "${ARGS[@]}"
+  exec ${JAVA_BIN} ${JMEM} ${JAVAGC} ${JAVADEBUG} -Xdock:icon="../Resources/ZAP.icns" -jar "${BASEDIR}/@zapJar@" "${ARGS[@]}"
 else
-  exec java ${JMEM} ${JAVAGC} ${JAVADEBUG} -jar "${BASEDIR}/@zapJar@" "${ARGS[@]}"
+  exec ${JAVA_BIN} ${JMEM} ${JAVAGC} ${JAVADEBUG} -jar "${BASEDIR}/@zapJar@" "${ARGS[@]}"
 fi
